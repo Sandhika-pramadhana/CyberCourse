@@ -22,27 +22,20 @@ if(isset($_POST['submit'])){
 
    $image = $_FILES['image']['name'];
    $image = filter_var($image, FILTER_SANITIZE_STRING);
-   $ext = pathinfo($image, PATHINFO_EXTENSION); 
+   $ext = pathinfo($image, PATHINFO_EXTENSION);
    $rename = create_unique_id().'.'.$ext;
    $image_size = $_FILES['image']['size'];
    $image_tmp_name = $_FILES['image']['tmp_name'];
    $image_folder = 'uploaded_files/'.$rename;
 
-
-   $allowed_ext = ['jpg', 'jpeg', 'png'];
-
    $select_user = $conn->prepare("SELECT * FROM users WHERE email = ?");
    $select_user->execute([$email]);
    
    if($select_user->rowCount() > 0){
-      $message[] = 'Email already taken!';
+      $message[] = 'email already taken!';
    }else{
       if($pass != $cpass){
-         $message[] = 'Confirm password not matched!';
-      }elseif(!in_array($ext, $allowed_ext)){ 
-         $message[] = 'Invalid image format! Only JPG, JPEG, and PNG are allowed.';
-      }elseif($image_size > 2000000){ 
-         $message[] = 'Image size too large! Maximum 2MB allowed.';
+         $message[] = 'confirm passowrd not matched!';
       }else{
          $insert_user = $conn->prepare("INSERT INTO users(id, name, email, password, image) VALUES(?,?,?,?,?)");
          $insert_user->execute([$id, $name, $email, $cpass, $rename]);
@@ -59,7 +52,6 @@ if(isset($_POST['submit'])){
       }
    }
 }
-
 ?>
 
 <!DOCTYPE html>
