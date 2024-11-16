@@ -8,23 +8,37 @@ if(isset($_COOKIE['user_id'])){
 }
 
 if(isset($_POST['submit'])){
-
    $email = $_POST['email'];
    $email = filter_var($email, FILTER_SANITIZE_STRING);
    $pass = sha1($_POST['pass']);
    $pass = filter_var($pass, FILTER_SANITIZE_STRING);
 
-   $select_user = $conn->prepare("SELECT * FROM users WHERE email = ? AND password = ? LIMIT 1");
-   $select_user->execute([$email, $pass]);
-   $row = $select_user->fetch(PDO::FETCH_ASSOC);
-   
-   if($select_user->rowCount() > 0){
-     setcookie('user_id', $row['id'], time() + 60*60*24*30, '/');
-     header('location:home.php');
-   }else{
-      $message[] = 'incorrect email or password!';
-   }
+   $max_attempts = 3;
+   $time_frame = 15 * 60; 
+   $current_time = time();
 
+   $check_attempts = $conn->prepare("SELECT COUNT(*) FROM login_attempts WHERE email = ? AND attempt_time > NOW() - INTERVAL 15 MINUTE");
+   $check_attempts->execute([$email]);
+   $attempts = $check_attempts->fetchColumn();
+
+   if ($attempts >= $max_attempts) {
+       $message[] = 'Too many login attempts. Please try again later.';
+   } else {
+
+       $select_user = $conn->prepare("SELECT * FROM users WHERE email = ? AND password = ? LIMIT 1");
+       $select_user->execute([$email, $pass]);
+       $row = $select_user->fetch(PDO::FETCH_ASSOC);
+
+       if($select_user->rowCount() > 0){
+           setcookie('user_id', $row['id'], time() + 60*60*24*30, '/');
+           header('location:home.php');
+       } else {
+           $message[] = 'Incorrect email or password!';
+
+           $insert_attempt = $conn->prepare("INSERT INTO login_attempts (email) VALUES (?)");
+           $insert_attempt->execute([$email]);
+       }
+   }
 }
 ?>
 
