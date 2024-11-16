@@ -10,13 +10,13 @@ if(isset($_COOKIE['user_id'])){
 
 if(isset($_POST['submit'])){
 
-   $name = $_POST['name']; 
+   $name = htmlspecialchars($_POST['name']); 
    $name = filter_var($name, FILTER_SANITIZE_STRING);
-   $email = $_POST['email']; 
+   $email = htmlspecialchars($_POST['email']); 
    $email = filter_var($email, FILTER_SANITIZE_STRING);
-   $number = $_POST['number']; 
+   $number = htmlspecialchars($_POST['number']); 
    $number = filter_var($number, FILTER_SANITIZE_STRING);
-   $msg = $_POST['msg']; 
+   $msg = htmlspecialchars($_POST['msg']); 
    $msg = filter_var($msg, FILTER_SANITIZE_STRING);
 
    $select_contact = $conn->prepare("SELECT * FROM `contact` WHERE name = ? AND email = ? AND number = ? AND message = ?");
