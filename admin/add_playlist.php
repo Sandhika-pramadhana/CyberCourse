@@ -70,7 +70,6 @@ if(isset($_POST['submit'])){
    </form>
 </section>
 
-<?php include '../components/footer.php'; ?>
 
 <script src="../js/admin_script.js"></script>
 

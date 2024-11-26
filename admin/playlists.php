@@ -94,7 +94,6 @@ if(isset($_POST['delete'])){
    </div>
 </section>
 
-<?php include '../components/footer.php'; ?>
 
 <script src="../js/admin_script.js"></script>
 

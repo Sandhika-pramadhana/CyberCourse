@@ -96,7 +96,6 @@ if(isset($_POST['remove'])){
    </div>
 </section>
 
-<?php include 'components/footer.php'; ?>
 
 <script src="js/script.js"></script>
    

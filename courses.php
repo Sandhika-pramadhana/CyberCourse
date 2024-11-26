@@ -62,7 +62,6 @@ if(isset($_COOKIE['user_id'])){
    </div>
 </section>
 
-<?php include 'components/footer.php'; ?>
 
 <script src="js/script.js"></script>
    

@@ -145,7 +145,6 @@ if(isset($_POST['save_list'])){
    </div>
 </section>
 
-<?php include 'components/footer.php'; ?>
 
 <script src="js/script.js"></script>
    

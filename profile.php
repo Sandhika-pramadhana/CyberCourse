@@ -86,10 +86,6 @@ $total_bookmarked = $select_bookmark->rowCount();
    </div>
 </section>
 
-<footer class="footer">
-   &copy;Copyright @ 2024 by <span>Kelompok HCI</span> | All Rights Reserved!
-</footer>
-
 <script src="js/script.js"></script>
    
 </body>

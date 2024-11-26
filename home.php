@@ -156,7 +156,6 @@ $total_bookmarked = $select_bookmark->rowCount();
    </div>
 </section>
 
-<?php include 'components/footer.php'; ?>
 
 <script src="js/script.js"></script>
    

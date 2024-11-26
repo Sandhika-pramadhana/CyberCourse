@@ -124,8 +124,6 @@ if(isset($_POST['update_now'])){
       </div>
 </section>
 
-<?php include 'components/footer.php'; ?>
-
 <script src="js/script.js"></script>
    
 </body>

@@ -90,7 +90,6 @@ if(isset($_POST['delete_video'])){
    </div>
 </section>
 
-<?php include '../components/footer.php'; ?>
 
 <script src="../js/admin_script.js"></script>
 
