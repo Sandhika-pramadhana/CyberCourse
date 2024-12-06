@@ -2,6 +2,9 @@
 
 include '../components/connect.php';
 
+define('UPLOADS_DIR', '../uploaded_files/');
+define('SELECT_CONTENT_BY_ID', "SELECT * FROM `content` WHERE id = ? LIMIT 1");
+
 if(isset($_COOKIE['tutor_id'])){
    $tutor_id = $_COOKIE['tutor_id'];
 }else{
@@ -12,23 +15,28 @@ if(isset($_COOKIE['tutor_id'])){
 if(isset($_POST['delete_video'])){
    $delete_id = $_POST['video_id'];
    $delete_id = filter_var($delete_id, FILTER_SANITIZE_STRING);
-   $verify_video = $conn->prepare("SELECT * FROM `content` WHERE id = ? LIMIT 1");
+   $verify_video = $conn->prepare(SELECT_CONTENT_BY_ID);
    $verify_video->execute([$delete_id]);
    if($verify_video->rowCount() > 0){
-      $delete_video_thumb = $conn->prepare("SELECT * FROM `content` WHERE id = ? LIMIT 1");
+      $delete_video_thumb = $conn->prepare(SELECT_CONTENT_BY_ID);
       $delete_video_thumb->execute([$delete_id]);
       $fetch_thumb = $delete_video_thumb->fetch(PDO::FETCH_ASSOC);
-      unlink('../uploaded_files/'.$fetch_thumb['thumb']);
-      $delete_video = $conn->prepare("SELECT * FROM `content` WHERE id = ? LIMIT 1");
+      unlink(UPLOADS_DIR.$fetch_thumb['thumb']);
+      
+      $delete_video = $conn->prepare(SELECT_CONTENT_BY_ID);
       $delete_video->execute([$delete_id]);
       $fetch_video = $delete_video->fetch(PDO::FETCH_ASSOC);
-      unlink('../uploaded_files/'.$fetch_video['video']);
+      unlink(UPLOADS_DIR.$fetch_video['video']);
+      
       $delete_likes = $conn->prepare("DELETE FROM `likes` WHERE content_id = ?");
       $delete_likes->execute([$delete_id]);
+      
       $delete_comments = $conn->prepare("DELETE FROM `comments` WHERE content_id = ?");
       $delete_comments->execute([$delete_id]);
+      
       $delete_content = $conn->prepare("DELETE FROM `content` WHERE id = ?");
       $delete_content->execute([$delete_id]);
+      
       $message[] = 'video deleted!';
    }else{
       $message[] = 'video already deleted!';
@@ -43,16 +51,18 @@ if(isset($_POST['delete_playlist'])){
    $verify_playlist->execute([$delete_id, $tutor_id]);
 
    if($verify_playlist->rowCount() > 0){
-
-   $delete_playlist_thumb = $conn->prepare("SELECT * FROM `playlist` WHERE id = ? LIMIT 1");
-   $delete_playlist_thumb->execute([$delete_id]);
-   $fetch_thumb = $delete_playlist_thumb->fetch(PDO::FETCH_ASSOC);
-   unlink('../uploaded_files/'.$fetch_thumb['thumb']);
-   $delete_bookmark = $conn->prepare("DELETE FROM `bookmark` WHERE playlist_id = ?");
-   $delete_bookmark->execute([$delete_id]);
-   $delete_playlist = $conn->prepare("DELETE FROM `playlist` WHERE id = ?");
-   $delete_playlist->execute([$delete_id]);
-   $message[] = 'playlist deleted!';
+      $delete_playlist_thumb = $conn->prepare("SELECT * FROM `playlist` WHERE id = ? LIMIT 1");
+      $delete_playlist_thumb->execute([$delete_id]);
+      $fetch_thumb = $delete_playlist_thumb->fetch(PDO::FETCH_ASSOC);
+      unlink(UPLOADS_DIR.$fetch_thumb['thumb']);
+      
+      $delete_bookmark = $conn->prepare("DELETE FROM `bookmark` WHERE playlist_id = ?");
+      $delete_bookmark->execute([$delete_id]);
+      
+      $delete_playlist = $conn->prepare("DELETE FROM `playlist` WHERE id = ?");
+      $delete_playlist->execute([$delete_id]);
+      
+      $message[] = 'playlist deleted!';
    }else{
       $message[] = 'playlist already deleted!';
    }
@@ -73,13 +83,13 @@ if(isset($_POST['delete_playlist'])){
 <body>
 
 <?php include '../components/admin_header.php'; ?>
-   
+
 <section class="contents">
    <h1 class="heading">Contents</h1>
    <div class="box-container">
 
    <?php
-      if(isset($_POST['search']) or isset($_POST['search_btn'])){
+      if(isset($_POST['search']) || isset($_POST['search_btn'])){
       $search = $_POST['search'];
       $select_videos = $conn->prepare("SELECT * FROM `content` WHERE title LIKE '%{$search}%' AND tutor_id = ? ORDER BY date DESC");
       $select_videos->execute([$tutor_id]);
@@ -87,14 +97,13 @@ if(isset($_POST['delete_playlist'])){
          while($fecth_videos = $select_videos->fetch(PDO::FETCH_ASSOC)){ 
             $video_id = $fecth_videos['id'];
    ?>
-
       <div class="box">
          <div class="flex">
             <div><i class="fas fa-dot-circle" style="<?php if($fecth_videos['status'] == 'active'){echo 'color:limegreen'; }else{echo 'color:red';} ?>"></i><span style="<?php if($fecth_videos['status'] == 'active'){echo 'color:limegreen'; }else{echo 'color:red';} ?>"><?= $fecth_videos['status']; ?></span></div>
             <div><i class="fas fa-calendar"></i><span><?= $fecth_videos['date']; ?></span></div>
          </div>
 
-         <img src="../uploaded_files/<?= $fecth_videos['thumb']; ?>" class="thumb" alt="">
+         <img src="<?= UPLOADS_DIR.$fecth_videos['thumb']; ?>" class="thumb" alt="">
          <h3 class="title"><?= $fecth_videos['title']; ?></h3>
          <form action="" method="post" class="flex-btn">
             <input type="hidden" name="video_id" value="<?= $video_id; ?>">
@@ -106,7 +115,7 @@ if(isset($_POST['delete_playlist'])){
    <?php
          }
       }else{
-         echo '<p class="empty">No contents founds!</p>';
+         echo '<p class="empty">No contents found!</p>';
       }
    }else{
       echo '<p class="empty">Please search something!</p>';
@@ -139,7 +148,7 @@ if(isset($_POST['delete_playlist'])){
 
          <div class="thumb">
             <span><?= $total_videos; ?></span>
-            <img src="../uploaded_files/<?= $fetch_playlist['thumb']; ?>" alt="">
+            <img src="<?= UPLOADS_DIR.$fetch_playlist['thumb']; ?>" alt="">
          </div>
 
          <h3 class="title"><?= $fetch_playlist['title']; ?></h3>
@@ -161,7 +170,6 @@ if(isset($_POST['delete_playlist'])){
       ?>
    </div>
 </section>
-
 
 <script src="../js/admin_script.js"></script>
 
