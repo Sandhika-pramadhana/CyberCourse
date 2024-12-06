@@ -138,6 +138,11 @@ CREATE TABLE `users` (
 --
 -- Dumping data for table `users`
 --
+CREATE TABLE login_attempts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    attempt_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `image`) VALUES
 ('QskguAVcJJZt0lWKBCAs', 'Sandhika', 'sandhika@gmail.com', '3068122d2c742c0b1a81ead1a08cdd8ee9840de7', 'ZHKO3NFNLblhDwd3gc3J.jpg');
