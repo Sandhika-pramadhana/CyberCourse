@@ -1,5 +1,4 @@
 <?php
-
 include '../components/connect.php';
 
 if(isset($_POST['submit'])){
@@ -9,15 +8,32 @@ if(isset($_POST['submit'])){
    $pass = sha1($_POST['pass']);
    $pass = filter_var($pass, FILTER_SANITIZE_STRING);
 
-   $select_tutor = $conn->prepare("SELECT * FROM `tutors` WHERE email = ? AND password = ? LIMIT 1");
-   $select_tutor->execute([$email, $pass]);
-   $row = $select_tutor->fetch(PDO::FETCH_ASSOC);
-   
-   if($select_tutor->rowCount() > 0){
-     setcookie('tutor_id', $row['id'], time() + 60*60*24*30, '/');
-     header('location:dashboard.php');
-   }else{
-      $message[] = 'Incorrect email or password!';
+   $max_attempts = 2;
+   $time_frame = 15 * 60; 
+   $current_time = time();
+
+   $check_attempts = $conn->prepare("SELECT COUNT(*) FROM login_attempts WHERE email = ? AND attempt_time > NOW() - INTERVAL 15 MINUTE");
+   $check_attempts->execute([$email]);
+   $attempts = $check_attempts->fetchColumn();
+
+   if ($attempts >= $max_attempts) {
+       $message[] = 'Too many login attempts. Please try again later.';
+   } else {
+       
+       $select_admin = $conn->prepare("SELECT * FROM `tutors` WHERE email = ? AND password = ? LIMIT 1");
+       $select_admin->execute([$email, $pass]);
+       $row = $select_admin->fetch(PDO::FETCH_ASSOC);
+
+       if($select_admin->rowCount() > 0){
+           setcookie('tutor_id', $row['id'], time() + 60*60*24*30, '/');
+           header('location:dashboard.php');
+       } else {
+           $message[] = 'Email atau password salah!';
+
+           
+           $insert_attempt = $conn->prepare("INSERT INTO login_attempts (email) VALUES (?)");
+           $insert_attempt->execute([$email]);
+       }
    }
 }
 ?>
@@ -32,7 +48,6 @@ if(isset($_POST['submit'])){
 
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
    <link rel="stylesheet" href="../css/admin_style.css">
-
 </head>
 <body style="padding-left: 0;">
 
@@ -81,6 +96,6 @@ if(darkMode === 'enabled'){
    disableDarkMode();
 }
 </script>
-   
+
 </body>
 </html>
